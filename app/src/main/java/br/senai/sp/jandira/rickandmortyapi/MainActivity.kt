@@ -31,6 +31,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.senai.sp.jandira.rickandmortyapi.model.Character
+import br.senai.sp.jandira.rickandmortyapi.screens.CharacterDetails
+import br.senai.sp.jandira.rickandmortyapi.screens.ListAllCharacters
 import br.senai.sp.jandira.rickandmortyapi.service.RetrofitFactory
 import br.senai.sp.jandira.rickandmortyapi.ui.theme.RickAndMortyAPITheme
 import coil.compose.AsyncImage
@@ -44,83 +46,9 @@ class MainActivity : ComponentActivity() {
        // enableEdgeToEdge()
         setContent {
             RickAndMortyAPITheme {
-                CharacterDetails()
+                ListAllCharacters()
             }
         }
     }
 }
 
-@Composable
-fun CharacterDetails(modifier: Modifier = Modifier) {
-
-    var id by remember {
-        mutableStateOf( "")
-    }
-
-    var character by remember {
-        mutableStateOf( Character())
-    }
-
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            OutlinedTextField(
-                value = id,
-                onValueChange = {id = it},
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                ),
-                trailingIcon = {
-                    IconButton(onClick = {
-
-                       val callCharacter = RetrofitFactory()
-                           .getCharacterService()
-                           .getCharacterById(id.toInt())
-
-                        callCharacter.enqueue(object : Callback<Character>{
-                            override fun onResponse(p0: Call<Character>, response: Response<Character>) {
-                                character = response.body()!!
-                            }
-
-                            override fun onFailure(p0: Call<Character>, p1: Throwable) {
-                                TODO("Not yet implemented")
-                            }
-
-                        })
-
-                    }) {
-                        Icon(imageVector = Icons.Default.Search,
-                            contentDescription = ""
-                        )
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            Card(
-                modifier = Modifier
-                    .size(100.dp)
-            ) {
-                AsyncImage(
-                    model = character.image,
-                    contentDescription = ""
-
-                )
-            }
-            Text(text = "Nome: ${character.name}")
-            Text(text = "Espécie:${character.species}")
-            Text(text = "Origem: ${character.origin.name}")
-        }
-    }
-
-}
-
-@Preview (showSystemUi = true)
-@Composable
-private fun CharacterDetailsPreview() {
-    CharacterDetails()
-}
